@@ -439,6 +439,16 @@ private[spark] class MesosClusterScheduler(
         .mkString(",")
       options ++= Seq("--py-files", formattedFiles)
     }
+
+    // SPARK_EXECUTOR_OPTS is not used
+    // Add conf option
+    desc.schedulerProperties.get("spark.executor.extraJavaOptions").map { v =>
+      options ++= Seq("--conf", s""""spark.executor.extraJavaOptions=$v"""".stripMargin)
+    }
+    // Add driver java options
+    desc.schedulerProperties.get("spark.driver.extraJavaOptions").map { v =>
+      options ++= Seq("--driver-java-options", s""""$v"""".stripMargin)
+    }
     options
   }
 
