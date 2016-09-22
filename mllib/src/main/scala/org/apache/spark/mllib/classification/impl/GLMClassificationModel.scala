@@ -35,7 +35,8 @@ private[classification] object GLMClassificationModel {
     def thisFormatVersion: String = "1.0"
 
     /** Model data for import/export */
-    case class Data(weights: Vector, intercept: Double, threshold: Option[Double])
+    case class Data(weights: Vector, intercept: Double, threshold: Option[Double],
+                    lossHistory: Option[Array[Double]] = None )
 
     /**
      * Helper method for saving GLM classification model metadata and data.
@@ -89,7 +90,12 @@ private[classification] object GLMClassificationModel {
       } else {
         Some(data.getDouble(2))
       }
-      Data(weights, intercept, threshold)
+      val lossHistory = if (data.isNullAt(3)) {
+        None
+      } else {
+        Some(data.getAs[Array[Double]](3))
+      }
+      Data(weights, intercept, threshold, lossHistory)
     }
   }
 

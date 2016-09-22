@@ -168,6 +168,15 @@ abstract class GeneralizedLinearAlgorithm[M <: GeneralizedLinearModel]
   protected def createModel(weights: Vector, intercept: Double): M
 
   /**
+    * Create a model given the weights and intercept and loss history
+    */
+  @Since("1.6.1")
+  protected def createModel(weights: Vector, intercept: Double,
+                            lossHistory: Option[Array[Double]]): M = {
+    createModel(weights, intercept)
+  }
+
+  /**
    * Get if the algorithm uses addIntercept
    *
    */
