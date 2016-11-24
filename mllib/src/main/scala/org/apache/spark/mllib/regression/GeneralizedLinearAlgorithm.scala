@@ -319,7 +319,8 @@ abstract class GeneralizedLinearAlgorithm[M <: GeneralizedLinearModel]
       initialWeights
     }
 
-    val weightsWithIntercept = optimizer.optimize(data, initialWeightsWithIntercept)
+    val (weightsWithIntercept, lossHistory) =
+      optimizer.optimizeWithLossHistory(data, initialWeightsWithIntercept)
 
     val intercept = if (addIntercept && numOfLinearPredictor == 1) {
       weightsWithIntercept(weightsWithIntercept.size - 1)
@@ -378,6 +379,6 @@ abstract class GeneralizedLinearAlgorithm[M <: GeneralizedLinearModel]
       data.unpersist(false)
     }
 
-    createModel(weights, intercept)
+    createModel(weights, intercept, lossHistory)
   }
 }

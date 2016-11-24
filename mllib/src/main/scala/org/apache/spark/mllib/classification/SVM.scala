@@ -83,7 +83,7 @@ class SVMModel @Since("1.1.0") (
   @Since("1.3.0")
   override def save(sc: SparkContext, path: String): Unit = {
     GLMClassificationModel.SaveLoadV1_0.save(sc, path, this.getClass.getName,
-      numFeatures = weights.size, numClasses = 2, weights, intercept, threshold)
+      numFeatures = weights.size, numClasses = 2, weights, intercept, threshold, lossHistory)
   }
 
   override protected def formatVersion: String = "1.0"

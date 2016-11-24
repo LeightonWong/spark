@@ -145,6 +145,22 @@ class GradientDescent private[spark] (private var gradient: Gradient, private va
     weights
   }
 
+  @DeveloperApi
+  override def optimizeWithLossHistory(data: RDD[(Double, Vector)],
+                                       initialWeights: Vector): (Vector, Option[Array[Double]]) = {
+    val (weights, lossHistory) = GradientDescent.runMiniBatchSGD(
+      data,
+      gradient,
+      updater,
+      stepSize,
+      numIterations,
+      regParam,
+      miniBatchFraction,
+      initialWeights,
+      convergenceTol)
+    (weights, Some(lossHistory))
+  }
+
 }
 
 /**
