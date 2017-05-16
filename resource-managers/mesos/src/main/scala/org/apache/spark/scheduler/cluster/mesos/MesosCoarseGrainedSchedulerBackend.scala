@@ -56,7 +56,7 @@ private[spark] class MesosCoarseGrainedSchedulerBackend(
   with MesosSchedulerUtils {
 
   // Blacklist a slave after this many failures
-  private val MAX_SLAVE_FAILURES = 2
+  private val MAX_SLAVE_FAILURES = 20000
 
   private val maxCoresOption = conf.getOption("spark.cores.max").map(_.toInt)
 

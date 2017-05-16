@@ -36,7 +36,8 @@ import org.apache.spark.rdd.RDD
 @Since("0.8.0")
 class SVMModel @Since("1.1.0") (
     @Since("1.0.0") override val weights: Vector,
-    @Since("0.8.0") override val intercept: Double)
+    @Since("0.8.0") override val intercept: Double,
+    @Since("1.6.1") val lossHistory: Option[Array[Double]] = None)
   extends GeneralizedLinearModel(weights, intercept) with ClassificationModel with Serializable
   with Saveable with PMMLExportable {
 
@@ -82,7 +83,8 @@ class SVMModel @Since("1.1.0") (
   @Since("1.3.0")
   override def save(sc: SparkContext, path: String): Unit = {
     GLMClassificationModel.SaveLoadV1_0.save(sc, path, this.getClass.getName,
-      numFeatures = weights.size, numClasses = 2, weights, intercept, threshold)
+      numFeatures = weights.size, numClasses = 2, weights, intercept, threshold, lossHistory)
+
   }
 
   override protected def formatVersion: String = "1.0"
@@ -104,7 +106,7 @@ object SVMModel extends Loader[SVMModel] {
       case (className, "1.0") if className == classNameV1_0 =>
         val (numFeatures, numClasses) = ClassificationModel.getNumFeaturesClasses(metadata)
         val data = GLMClassificationModel.SaveLoadV1_0.loadData(sc, path, classNameV1_0)
-        val model = new SVMModel(data.weights, data.intercept)
+        val model = new SVMModel(data.weights, data.intercept, data.lossHistory)
         assert(model.weights.size == numFeatures, s"SVMModel.load with numFeatures=$numFeatures" +
           s" was given non-matching weights vector of size ${model.weights.size}")
         assert(numClasses == 2,
@@ -154,7 +156,12 @@ class SVMWithSGD private (
   def this() = this(1.0, 100, 0.01, 1.0)
 
   override protected def createModel(weights: Vector, intercept: Double) = {
-    new SVMModel(weights, intercept)
+    new SVMModel(weights, intercept, None)
+  }
+
+  override protected def createModel(weights: Vector, intercept: Double,
+                                     lossHistory: Option[Array[Double]]) = {
+    new SVMModel(weights, intercept, lossHistory)
   }
 }
 
