@@ -234,9 +234,28 @@ private[spark] class MesosCoarseGrainedSchedulerBackend(
     } else {
       // Grab everything to the first '.'. We'll use that and '*' to
       // glob the directory "correctly".
-      val basename = uri.get.split('/').last.split('.').head
+      // val basename = uri.get.split('/').last.split('.').head
+      // Update: Using '*' will cause cd problem in some linux distribution
+      // because the original tar is beside this directory, so the cd
+      // command with '*' will match two string and show error message: cd : too many arguments.
+      // Using exact name instead like spark-x.x.x
+      // val basename = uri.get.split('/').last.split('.').head
+      val filename = uri.get.split('/').last
+      val basename = if (filename.endsWith(".tar")
+        || filename.endsWith(".tar.gz") || filename.endsWith(".tgz")
+        || filename.endsWith(".tar.bz2") || filename.endsWith(".tbz2")
+        || filename.endsWith(".tar.xz") || filename.endsWith(".txz")) {
+        filename.substring(0, filename.indexOf(".t"))
+      } else if (filename.endsWith(".gz")) {
+        filename.substring(0, filename.indexOf(".gz"))
+      } else if (filename.endsWith(".zip")) {
+        filename.substring(0, filename.indexOf(".zip"))
+      } else {
+        filename
+      }
+
       command.setValue(
-        s"cd $basename*; $prefixEnv " +
+        s"cd $basename; $prefixEnv " +
         "./bin/spark-class org.apache.spark.executor.CoarseGrainedExecutorBackend" +
         s" --driver-url $driverURL" +
         s" --executor-id $taskId" +
