@@ -673,7 +673,7 @@
       <dependency>
         <groupId>org.json4s</groupId>
         <artifactId>json4s-jackson_${scala.binary.version}</artifactId>
-        <version>3.2.11</version>
+        <version>3.5.0</version>
       </dependency>
       <dependency>
         <groupId>org.scala-lang</groupId>
