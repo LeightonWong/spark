@@ -169,6 +169,15 @@ abstract class GeneralizedLinearAlgorithm[M <: GeneralizedLinearModel]
   protected def createModel(weights: Vector, intercept: Double): M
 
   /**
+   * Create a model given the weights and intercept and loss history
+   */
+  @Since("1.6.1")
+  protected def createModel(weights: Vector, intercept: Double,
+                            lossHistory: Option[Array[Double]]): M = {
+    createModel(weights, intercept)
+  }
+
+  /**
    * Get if the algorithm uses addIntercept
    *
    */
@@ -310,7 +319,8 @@ abstract class GeneralizedLinearAlgorithm[M <: GeneralizedLinearModel]
       initialWeights
     }
 
-    val weightsWithIntercept = optimizer.optimize(data, initialWeightsWithIntercept)
+    val (weightsWithIntercept, lossHistory) =
+      optimizer.optimizeWithLossHistory(data, initialWeightsWithIntercept)
 
     val intercept = if (addIntercept && numOfLinearPredictor == 1) {
       weightsWithIntercept(weightsWithIntercept.size - 1)
@@ -369,6 +379,6 @@ abstract class GeneralizedLinearAlgorithm[M <: GeneralizedLinearModel]
       data.unpersist(false)
     }
 
-    createModel(weights, intercept)
+    createModel(weights, intercept, lossHistory)
   }
 }

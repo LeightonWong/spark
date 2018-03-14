@@ -27,6 +27,7 @@
   </parent>
 
   <artifactId>spark-tags_2.11</artifactId>
+  <version>2.3.0.1</version>
   <packaging>jar</packaging>
   <name>Spark Project Tags</name>
   <url>http://spark.apache.org/</url>
@@ -46,4 +47,11 @@
     <outputDirectory>target/scala-${scala.binary.version}/classes</outputDirectory>
     <testOutputDirectory>target/scala-${scala.binary.version}/test-classes</testOutputDirectory>
   </build>
+  <distributionManagement>
+    <repository>
+      <id>artifactory-release</id>
+      <name>artifactory-release</name>
+      <url>http://teamwork.kmtongji.com/artifactory/maven-release-local</url>
+    </repository>
+  </distributionManagement>
 </project>
