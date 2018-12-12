@@ -151,6 +151,20 @@ class LBFGS(private var gradient: Gradient, private var updater: Updater)
     weights
   }
 
+  override def optimizeWithLossHistory(data: RDD[(Double, Vector)],
+                                       initialWeights: Vector): (Vector, Option[Array[Double]]) = {
+    val (weights, lossHistory) = LBFGS.runLBFGS(
+      data,
+      gradient,
+      updater,
+      numCorrections,
+      convergenceTol,
+      maxNumIterations,
+      regParam,
+      initialWeights)
+    (weights, Some(lossHistory))
+  }
+
 }
 
 /**

@@ -35,7 +35,8 @@ private[classification] object GLMClassificationModel {
     def thisFormatVersion: String = "1.0"
 
     /** Model data for import/export */
-    case class Data(weights: Vector, intercept: Double, threshold: Option[Double])
+    case class Data(weights: Vector, intercept: Double, threshold: Option[Double],
+                        lossHistory: Option[Array[Double]] = None)
 
     /**
      * Helper method for saving GLM classification model metadata and data.
@@ -50,7 +51,8 @@ private[classification] object GLMClassificationModel {
         numClasses: Int,
         weights: Vector,
         intercept: Double,
-        threshold: Option[Double]): Unit = {
+        threshold: Option[Double],
+        lossHistory: Option[Array[Double]] = None): Unit = {
       val spark = SparkSession.builder().sparkContext(sc).getOrCreate()
 
       // Create JSON metadata.
@@ -60,7 +62,7 @@ private[classification] object GLMClassificationModel {
       sc.parallelize(Seq(metadata), 1).saveAsTextFile(Loader.metadataPath(path))
 
       // Create Parquet data.
-      val data = Data(weights, intercept, threshold)
+      val data = Data(weights, intercept, threshold, lossHistory)
       spark.createDataFrame(Seq(data)).repartition(1).write.parquet(Loader.dataPath(path))
     }
 
@@ -88,7 +90,12 @@ private[classification] object GLMClassificationModel {
       } else {
         Some(data.getDouble(2))
       }
-      Data(weights, intercept, threshold)
+      val lossHistory = if (data.isNullAt(3)) {
+        None
+      } else {
+        Some(data.getAs[Array[Double]](3))
+      }
+      Data(weights, intercept, threshold, lossHistory)
     }
   }
 }
